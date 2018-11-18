@@ -2,22 +2,10 @@ const sqlite = require('sqlite-sync');
 
 module.exports =
 {
-	connect: function()
-	{
-		sqlite.connect("./database/database.db");
-		console.log("> Connected to database!");
-	},
-
 	query: function(_sql)
 	{
 		console.log("> Executing query '"+_sql+"'");
 		return sqlite.run(_sql);
-	},
-	
-	init: function()
-	{
-		this.connect();
-		this.query("CREATE TABLE IF NOT EXISTS 'users' ( 'id' INTEGER NOT NULL PRIMARY KEY , 'username' VARCHAR(45), 'password' VARCHAR(45), 'name' VARCHAR(45) )");
 	},
 
 	getUsers: function()
@@ -64,3 +52,6 @@ module.exports =
 		});
 	}
 };
+
+sqlite.connect("./database/database.db");
+module.exports.query("CREATE TABLE IF NOT EXISTS 'users' ( 'id' INTEGER NOT NULL PRIMARY KEY , 'username' VARCHAR(45), 'password' VARCHAR(45), 'name' VARCHAR(45) )");
