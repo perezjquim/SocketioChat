@@ -8,9 +8,15 @@
    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 </head>
 <body>
+      
    <div class="container">
       <h1 class="jumbotron">
          Node js Socket io Chat Application
+         <% if (!user) { %>
+            <h4>Faça <a href="/login">login</a>.</h4>
+         <% } else { %>
+            <h4>Bem-vindo, <%= user.name %>!</h4> <a href="/logout">Logout</a>
+         <% } %>
       </h1>
       <div class="row" style="margin-top: 70px;">
          <div class="col-md-4"></div>
