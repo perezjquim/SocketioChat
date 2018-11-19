@@ -12,6 +12,15 @@ module.exports.prepare = function(db)
               return cb(null, user);
            });
         }));
+    passport.use('local-register', new Strategy(
+        function(username, password, cb)
+        {
+            db.insertUser(username, password, function(err, user) 
+            {
+                if (err) { return cb(err); }
+                return cb(null, user);
+            });
+        }));
     passport.serializeUser(function(user, cb) {
             cb(null, user.id);
         });

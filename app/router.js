@@ -21,6 +21,17 @@ module.exports =
         function(req, res){
           req.logout();
           res.redirect('/');
-        });  
+        }); 
+
+      app.get('/register',
+        function(req, res){
+          res.render('register');
+        });        
+        
+      app.post('/register',
+        passport.authenticate('local-register', { failureRedirect: '/register' }),
+        function(req, res) {
+          res.redirect('/');
+        });
     }
 };

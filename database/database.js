@@ -38,11 +38,13 @@ module.exports =
 
 		process.nextTick(function() 
 		{
-			var users = self.getUsers();
-			users = users.filter((user) => { return user.id === id; });
-			if(users.length > 0)
+			const sql = "SELECT * FROM 'users' WHERE id='@id@'";
+			var user = self.query(sql
+				.replace("@id@",id));
+			
+			if(user.length > 0)
 			{
-				return cb(null, users[0]);
+				return cb(null, user[0]);
 			}
 			else
 			{
@@ -50,8 +52,26 @@ module.exports =
 				return cb(null, null);
 			}
 		});
+	},
+
+	insertUser: function(username, password, cb)
+	{
+		const self = this;
+
+		process.nextTick(function() 
+		{
+			const sql_insert = "INSERT INTO 'users' ('username','password') VALUES('@username@','@password@')";
+			self.query(sql_insert
+				.replace("@username@",username)
+				.replace("@password@",password));
+
+			const sql_get_id = "SELECT max(id) as id FROM 'users'";
+			var id = self.query(sql_get_id)[0].id;
+			
+			return cb(null, { id: id, username: username, password: password });
+		});
 	}
 };
 
 sqlite.connect("./database/database.db");
-module.exports.query("CREATE TABLE IF NOT EXISTS 'users' ( 'id' INTEGER NOT NULL PRIMARY KEY , 'username' VARCHAR(45), 'password' VARCHAR(45), 'name' VARCHAR(45) )");
+module.exports.query("CREATE TABLE IF NOT EXISTS 'users' ( 'id' INTEGER NOT NULL PRIMARY KEY , 'username' VARCHAR(45), 'password' VARCHAR(45))");
