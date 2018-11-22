@@ -1,13 +1,13 @@
 const db = require("./database/database");
 
-const passport = require('./app/passport');
-passport.prepare(db);
+const everyauth = require('./app/everyauth');
+everyauth.prepare(db);
 
 const app = require("./app/app");
-app.prepare(passport);
+app.prepare(everyauth);
 
 const router = require("./app/router");
-router.prepare(app, passport);
+router.prepare(app, everyauth);
 
 const server = require('http').createServer(app);
 const PORT = 1234;

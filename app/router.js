@@ -1,21 +1,21 @@
 module.exports = 
 {
-    prepare: function(app,passport)
+    prepare: function(app,everyauth)
     {
       app.get('/', (req, res) => {
-          res.render('home', { user: req.user });
+          res.render('home', { user: req.session.auth });
         });
         
-      app.get('/login',
+      /*app.get('/login',
         function(req, res){
           res.render('login');
-        });
+        });    
         
       app.post('/login', 
-        passport.authenticate('local', { failureRedirect: '/login' }),
+        //passport.authenticate('local', { failureRedirect: '/login' }),
         function(req, res) {
           res.redirect('/');
-        });
+        });*/
       
       app.get('/logout',
         function(req, res){
@@ -23,15 +23,15 @@ module.exports =
           res.redirect('/');
         }); 
 
-      app.get('/register',
+      /*app.get('/register',
         function(req, res){
           res.render('register');
         });        
         
       app.post('/register',
-        passport.authenticate('local-register', { failureRedirect: '/register' }),
+        //passport.authenticate('local-register', { failureRedirect: '/register' }),
         function(req, res) {
           res.redirect('/');
-        });
+        });*/
     }
 };

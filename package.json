@@ -21,8 +21,10 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.18.2",
+    "connect": "^3.6.6",
     "cookie-parser": "^1.4.3",
     "ejs": "^2.6.1",
+    "everyauth": "^0.4.9",
     "express": "^4.16.2",
     "express-session": "^1.15.6",
     "morgan": "^1.9.1",
