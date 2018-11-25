@@ -4,7 +4,7 @@ module.exports =
 {
 	query: function(_sql)
 	{
-		console.log("> Executing query '"+_sql+"'");
+		console.log(">>>>> Executing query '"+_sql+"'");
 		return sqlite.run(_sql);
 	},
 
@@ -26,14 +26,13 @@ module.exports =
 		}
 	},
 
-	findUserById: function(id,type,cb)
+	findUserById: function(id,cb)
 	{
 		const self = this;
 
-		const sql = "SELECT * FROM '@type@users' WHERE id='@id@'";
+		const sql = "SELECT * FROM 'users' WHERE id='@id@' LIMIT 1";
 		var user = self.query(sql
-			.replace("@id@",id || "")
-			.replace("@type@",type));
+			.replace("@id@",id || ""));
 		
 		if(user.length > 0)
 		{
@@ -46,34 +45,44 @@ module.exports =
 		}
 	},
 
-	insertUser: function(type,user,cb)
+	insertUser: function(user)
 	{
 		const self = this;
 
-		const sql_check = "SELECT id FROM '@type@users' WHERE username='@username@'";
+		const sql_check = "SELECT id FROM 'users' WHERE username='@username@' LIMIT 1";
 		var id = self.query(sql_check
-			.replace("@username@",user.username || "")
-			.replace("@type@",type));
+			.replace("@username@",user.username || ""));
 
 		var notExists = !id.length;
 		
 		if(notExists)
 		{
-			const sql_insert = "INSERT INTO '@type@users' ('username','password','name') VALUES('@username@','@password@','@name@')";
+			if(!user.id)
+			{
+				var sql_insert = "INSERT INTO 'users' ('username','password','name') VALUES('@username@','@password@','@name@')";
+			}
+			else
+			{
+				var sql_insert = "INSERT INTO 'users' ('id',username','password','name') VALUES('@id@','@username@','@password@','@name@')";
+			}
+			
 			self.query(sql_insert
 				.replace("@username@",user.username || "")
 				.replace("@password@",user.password || "")
 				.replace("@name@",user.name || "")
-				.replace("@type@",type));
+				.replace("@id@",user.id || ""));
 
-			const sql_get_id = "SELECT max(id) as id FROM 'users'";
-			id = self.query(sql_get_id)[0].id;
+			if(!user.id)
+			{
+				const sql_get_id = "SELECT max(id) as id FROM 'users'";
+				id = self.query(sql_get_id)[0].id;
+			}
 		}
 		else
 		{
 			id = id[0].id;
 		}	
-		user.id = id;
+		if(!user.id) user.id = id;
 		return user;
 	}
 };
@@ -82,15 +91,8 @@ sqlite.connect("./database/database.db");
 module.exports.query(
 	"CREATE TABLE IF NOT EXISTS 'users' "+
 	"("+
-	"'id' INTEGER NOT NULL PRIMARY KEY,"+ 
-	"'username' VARCHAR(45),"+
+	"'id' INTEGER NOT NULL PRIMARY KEY UNIQUE,"+ 
+	"'username' VARCHAR(45) UNIQUE,"+
 	"'password' VARCHAR(45),"+
 	"'name' VARCHAR(45)"+
-	");"+
-	"CREATE TABLE IF NOT EXISTS 'fbusers' "+
-	"("+
-	"'id' INTEGER NOT NULL PRIMARY KEY,"+ 
-	"'username' VARCHAR(45),"+
-	"'password' VARCHAR(45),"+
-	"'name' VARCHAR(45)"+
-	");"	);
+	");");

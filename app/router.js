@@ -3,7 +3,7 @@ module.exports =
     prepare: function(app,everyauth)
     {
       app.get('/', (req, res) => {
-          res.render('home', { user: req.session.auth });
+          res.render('home');
         });
         
       /*app.get('/login',

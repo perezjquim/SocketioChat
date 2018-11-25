@@ -12,10 +12,18 @@
    <div class="container">
       <h1 class="jumbotron">
          Node js Socket io Chat Application
-         <% if (!everyauth.loggedIn) { %>
-            <h4>Faça <a href="/login">login</a> (<a href="/auth/facebook">Facebook</a>) ou <a href="/register">registe-se</a>.</h4>
+         <% if(!everyauth.loggedIn) { %>
+               <h4>Faça <a href="/login">login</a> (
+                  <a href="/auth/facebook">Facebook</a> 
+                  /
+                  <a href="/auth/github">GitHub</a> ) 
+                  ou <a href="/register">registe-se</a>.</h4>
          <% } else { %>
-            <h4>Bem-vindo, <%= %>!</h4> <a href="/logout">Logout</a>
+               <h4>Bem-vindo, 
+               <% if(everyauth.facebook) name = everyauth.facebook.user.name %>
+
+               <%= name %>!
+               </h4> <a href="/logout">Logout</a>
          <% } %>
       </h1>
       <div class="row" style="margin-top: 70px;">

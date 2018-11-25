@@ -7,11 +7,10 @@ module.exports.prepare = function(db)
     {
         process.nextTick(function()
         {
-            db.findUserById(userId, "", function (err, user) {
+            db.findUserById(userId, function (err, user) {
                 if (!err) return callback(null,user);
                 else return callback(null,null);
-            });
-            
+            });            
         });
     });
     everyauth.facebook
@@ -20,7 +19,7 @@ module.exports.prepare = function(db)
         .findOrCreateUser( function (session, accessToken, accessTokExtra, fbUserMetadata) {
 
             var promise = this.Promise();
-            db.findUserById(fbUserMetadata.id, "fb", function(err, user) {
+            db.findUserById(fbUserMetadata.id, function(err, user) {
                 if (err) return promise.fulfill([err]);
 
                 if(user) {
@@ -30,7 +29,7 @@ module.exports.prepare = function(db)
 
                 } else {
 
-                    db.insertUser("fb",{ username: fbUserMetadata.id, name: fbUserMetadata.name });
+                    db.insertUser({ id: fbUserMetadata.id, username: fbUserMetadata.id, name: fbUserMetadata.name });
 
                 }
 
@@ -80,7 +79,7 @@ module.exports.prepare = function(db)
             return errors;
           })
           .registerUser( function (newUserAttrs) {
-            return db.insertUser("", { username: newUserAttrs.login, password: newUserAttrs.password });
+            return db.insertUser({ username: newUserAttrs.login, password: newUserAttrs.password });
           })      
           .loginSuccessRedirect('/')
           .registerSuccessRedirect('/');        
