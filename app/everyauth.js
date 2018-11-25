@@ -17,23 +17,17 @@ module.exports.prepare = function(db)
         .appId('260979154590417')
         .appSecret('a22426ef9885a904b2f25c793af823fd')
         .findOrCreateUser( function (session, accessToken, accessTokExtra, fbUserMetadata) {
-
             var promise = this.Promise();
             db.findUserById(fbUserMetadata.id, function(err, user) {
                 if (err) return promise.fulfill([err]);
-
-                if(user) {
-
-                    // user found, life is good
+                if(user) 
+                {
                     promise.fulfill(user);
-
-                } else {
-
+                } 
+                else 
+                {
                     db.insertUser({ id: fbUserMetadata.id, username: fbUserMetadata.id, name: fbUserMetadata.name });
-
                 }
-
-
             });
 
             return promise;
@@ -53,6 +47,13 @@ module.exports.prepare = function(db)
               });
             }, 200);
           })
+          .extractExtraRegistrationParams( function (req) {
+            return {
+                login: req.body.login, 
+                password: req.body.password,
+                name: req.body.name
+            };
+          })          
           .authenticate( function (login, password) {
             var errors = [];
             if (!login) errors.push('Missing login');
@@ -63,7 +64,6 @@ module.exports.prepare = function(db)
             if (user.password !== password) return ['Login failed'];
             return user;
           })
-      
           .getRegisterPath('/register')
           .postRegisterPath('/register')
           .registerView('register.ejs')
@@ -74,12 +74,12 @@ module.exports.prepare = function(db)
               });
             }, 200);
           })
-          .validateRegistration( function (newUserAttrs, errors) {
+          .validateRegistration( function (newUserAttrs, errors) {          
             if (db.findUser(newUserAttrs.login,newUserAttrs.password)) errors.push('Login already taken');
             return errors;
           })
           .registerUser( function (newUserAttrs) {
-            return db.insertUser({ username: newUserAttrs.login, password: newUserAttrs.password });
+            return db.insertUser({ name: newUserAttrs.name, username: newUserAttrs.login, password: newUserAttrs.password });
           })      
           .loginSuccessRedirect('/')
           .registerSuccessRedirect('/');        

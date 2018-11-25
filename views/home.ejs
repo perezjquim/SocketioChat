@@ -13,16 +13,20 @@
       <h1 class="jumbotron">
          Node js Socket io Chat Application
          <% if(!everyauth.loggedIn) { %>
-               <h4>Faça <a href="/login">login</a> (
+               <h4>Faça <a href="/login">login</a> 
+                  (
                   <a href="/auth/facebook">Facebook</a> 
-                  /
-                  <a href="/auth/github">GitHub</a> ) 
+                  ) 
                   ou <a href="/register">registe-se</a>.</h4>
          <% } else { %>
                <h4>Bem-vindo, 
-               <% if(everyauth.facebook) name = everyauth.facebook.user.name %>
+               <% if(everyauth.user) { %> 
+               <%    user = everyauth.user; %>
+               <% } else if(everyauth.facebook) { %>
+               <%    user = everyauth.facebook.user; %>
+               <% } %>
 
-               <%= name %>!
+               <%= user.name %>!
                </h4> <a href="/logout">Logout</a>
          <% } %>
       </h1>
@@ -53,6 +57,7 @@
 
          form.submit(function(e) {
             e.preventDefault();
+            console.log(<%- user %>);
             socket.emit('sending message', txt.val());
             txt.val('');
          });

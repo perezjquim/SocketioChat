@@ -15,15 +15,12 @@ module.exports =
 
 	findUser: function(username,password)
 	{
-		var users = this.getUsers();
-		for (var i = 0, len = users.length; i < len; i++) 
-		{
-			var user = users[i];
-			if (user.username === username && user.password === password) 
-			{
-				return user;
-			}
-		}
+		const sql = "SELECT * FROM 'users' WHERE username='@username@' AND password='@password@' LIMIT 1";
+		var user = this.query(sql
+			.replace("@username@",username)
+			.replace("@password@",password));
+
+		if(user.length > 0) return user[0];
 	},
 
 	findUserById: function(id,cb)
@@ -84,6 +81,15 @@ module.exports =
 		}	
 		if(!user.id) user.id = id;
 		return user;
+	},
+
+	insertMessage: function(from,to,message)
+	{
+		const sql = "INSERT INTO 'messages' ('from','to','message','timestamp') VALUES ('@from@','@to@','@message@',CURRENT_TIMESTAMP)";
+		this.query(sql
+			.replace("@from@",from)
+			.replace("@to@",to)
+			.replace("@message@",message));
 	}
 };
 
@@ -95,4 +101,12 @@ module.exports.query(
 	"'username' VARCHAR(45) UNIQUE,"+
 	"'password' VARCHAR(45),"+
 	"'name' VARCHAR(45)"+
+	");"+
+	"CREATE TABLE IF NOT EXISTS 'messages' "+
+	"("+
+	"'id' INTEGER NOT NULL PRIMARY KEY UNIQUE,"+
+	"'from' INTEGER NOT NULL,"+
+	"'to' INTEGER NOT NULL,"+
+	"'message' VARCHART(45) NOT NULL,"+
+	"'timestamp' TEXT NOT NULL"+
 	");");
