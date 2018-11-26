@@ -104,14 +104,43 @@ module.exports =
 		const sql = "SELECT users.name,text,timestamp "+
 					"FROM messages "+
 					"INNER JOIN users ON messages.user_from=users.id "+
-					"WHERE user_to IS NULL OR user_to='' "+
+					"WHERE user_to IS NULL OR TRIM(user_to)='' "+
 					"ORDER BY timestamp DESC";
 		return this.query(sql);
+	},
+
+	getPrivateMessages: function(userId)
+	{
+		const sql = "SELECT * FROM"+
+					"("+
+						"SELECT users.name,text,timestamp "+
+						"FROM messages "+
+						"INNER JOIN users "+
+						"ON ( messages.user_from = users.id ) "+
+						"WHERE (user_to IS NOT NULL AND TRIM(user_to) != '') "+
+						"AND (user_from = '@userId@') "+
+						"ORDER BY timestamp DESC, user_from ASC, user_to ASC "+
+					")"+
+					"UNION "+
+					"SELECT * FROM "+
+					"("+
+						"SELECT users.name,text,timestamp "+
+						"FROM messages "+
+						"INNER JOIN users "+
+						"ON ( messages.user_from = users.id ) "+
+						"WHERE (user_to IS NOT NULL AND TRIM(user_to) != '') "+
+						"AND (user_to = '@userId@') "+
+						"ORDER BY timestamp DESC, user_from ASC, user_to ASC "+
+					")";
+
+		return this.query(sql
+			.replace(/@userId@/g,userId));
 	}
 };
 
 sqlite.connect("./database/database.db");
 module.exports.query(
+	"PRAGMA foreign_keys = ON; "+
 	"CREATE TABLE IF NOT EXISTS 'users' "+
 	"("+
 	"'id' INTEGER NOT NULL PRIMARY KEY UNIQUE,"+ 
@@ -125,5 +154,7 @@ module.exports.query(
 	"'user_from' INTEGER NOT NULL,"+
 	"'user_to' INTEGER,"+
 	"'text' VARCHART(45) NOT NULL,"+
-	"'timestamp' TEXT NOT NULL"+
+	"'timestamp' TEXT NOT NULL "+
+	"FOREIGN KEY(`user_from`) REFERENCES users ( id ),"+
+	"FOREIGN KEY(`user_to`) REFERENCES users ( id )"+
 	");");

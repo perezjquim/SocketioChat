@@ -10,7 +10,7 @@
 <body>
 
    <style>
-      #chatArea
+      .chatArea
       {
          height: 25vh;
          overflow: scroll;
@@ -49,17 +49,34 @@
       <div class="row" style="margin-top: 70px;">
          <div class="col-md-4"></div>
          <div class="col-md-6">
-            <div id="chatArea">
-               <% for(var i = 0, len = pMessages.length; i < len ; i++) { %>
+            <h3>Mensagens pessoais</h3>
+            <div class="chatArea" id="prChat">
+               <% for(var i = 0, len = prMessages.length; i < len ; i++) { %>
                   <div class="well">
                      <div style="float:left;">
-                        <%= pMessages[i].name %>
+                        <%= prMessages[i].name %>
                      </div>                     
                      <div style="display: inline-block; margin:0 auto;">
-                        <%= pMessages[i].text %>
+                        <%= prMessages[i].text %>
                      </div>
                      <div style="float:right;">
-                        <i><%= pMessages[i].timestamp %></i>
+                        <i><%= prMessages[i].timestamp %></i>
+                     </div>
+                  </div>                     
+               <% } %>
+            </div>  
+            <h3>Chat público</h3>          
+            <div class="chatArea" id="pubChat">
+               <% for(var i = 0, len = pubMessages.length; i < len ; i++) { %>
+                  <div class="well">
+                     <div style="float:left;">
+                        <%= pubMessages[i].name %>
+                     </div>                     
+                     <div style="display: inline-block; margin:0 auto;">
+                        <%= pubMessages[i].text %>
+                     </div>
+                     <div style="float:right;">
+                        <i><%= pubMessages[i].timestamp %></i>
                      </div>
                   </div>                     
                <% } %>
@@ -79,10 +96,11 @@
    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
    <script>
       jQuery(document).ready(function() {
-         var socket = io.connect();
-         var form = jQuery('#myForm');
-         var txt = jQuery('#txt');
-         var chatArea = jQuery('#chatArea');
+         const socket = io.connect();
+         const form = jQuery('#myForm');
+         const txt = jQuery('#txt');
+         const pubChat = jQuery('#pubChat');
+         const prChat = jQuery("#prChat");
 
          form.submit(function(e) {
             e.preventDefault();
@@ -91,7 +109,7 @@
          });
 
          socket.on('new message', function(data){
-            chatArea.prepend('<div class="well">'+
+            pubChat.prepend('<div class="well">'+
                      '<div style="float:left;">'+
                         data.name+
                      '</div>'+                     
