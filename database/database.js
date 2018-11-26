@@ -60,20 +60,14 @@ module.exports =
 			}
 			else
 			{
-				var sql_insert = "INSERT INTO 'users' ('id',username','password','name') VALUES('@id@','@username@','@password@','@name@')";
+				var sql_insert = "INSERT INTO 'users' ('id','username','password','name') VALUES('@id@','@username@','@password@','@name@')";
 			}
 			
-			self.query(sql_insert
+			user.id = self.query(sql_insert
 				.replace("@username@",user.username || "")
 				.replace("@password@",user.password || "")
 				.replace("@name@",user.name || "")
 				.replace("@id@",user.id || ""));
-
-			if(!user.id)
-			{
-				const sql_get_id = "SELECT max(id) as id FROM 'users'";
-				id = self.query(sql_get_id)[0].id;
-			}
 		}
 		else
 		{
@@ -83,13 +77,36 @@ module.exports =
 		return user;
 	},
 
-	insertMessage: function(from,to,message)
+	insertMessage: function(message)
 	{
-		const sql = "INSERT INTO 'messages' ('from','to','message','timestamp') VALUES ('@from@','@to@','@message@',CURRENT_TIMESTAMP)";
-		this.query(sql
-			.replace("@from@",from)
-			.replace("@to@",to)
-			.replace("@message@",message));
+		const sql = "INSERT INTO 'messages' ('user_from','user_to','text','timestamp') VALUES ('@user_from@','@user_to@','@text@',CURRENT_TIMESTAMP)";
+		var id = this.query(sql
+			.replace("@user_from@",message.from || "")
+			.replace("@user_to@",message.to || "")
+			.replace("@text@",message.text || ""));
+
+		return this.getMessage(id);
+	},
+
+	getMessage: function(id)
+	{
+		const sql =  	"SELECT users.name,text,timestamp "+
+						"FROM messages "+
+						"INNER JOIN users ON messages.user_from=users.id "+
+						"WHERE messages.id='@id@' "+
+						"ORDER BY timestamp DESC";
+		return this.query(sql
+			.replace("@id@",id))[0];
+	},
+
+	getPublicMessages: function()
+	{
+		const sql = "SELECT users.name,text,timestamp "+
+					"FROM messages "+
+					"INNER JOIN users ON messages.user_from=users.id "+
+					"WHERE user_to IS NULL OR user_to='' "+
+					"ORDER BY timestamp DESC";
+		return this.query(sql);
 	}
 };
 
@@ -105,8 +122,8 @@ module.exports.query(
 	"CREATE TABLE IF NOT EXISTS 'messages' "+
 	"("+
 	"'id' INTEGER NOT NULL PRIMARY KEY UNIQUE,"+
-	"'from' INTEGER NOT NULL,"+
-	"'to' INTEGER NOT NULL,"+
-	"'message' VARCHART(45) NOT NULL,"+
+	"'user_from' INTEGER NOT NULL,"+
+	"'user_to' INTEGER,"+
+	"'text' VARCHART(45) NOT NULL,"+
 	"'timestamp' TEXT NOT NULL"+
 	");");

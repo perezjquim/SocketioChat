@@ -1,9 +1,10 @@
 module.exports = 
 {
-    prepare: function(app,everyauth)
+    prepare: function(app,everyauth,db)
     {
       app.get('/', (req, res) => {
-          res.render('home');
+          const pMessages = db.getPublicMessages();
+          res.render('home',{ pMessages: pMessages });
       });
     }
 };

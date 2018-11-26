@@ -1,6 +1,6 @@
 const connections = [];
 
-module.exports.prepare = function(server)
+module.exports.prepare = function(server,db)
 {   
     var io = require("socket.io").listen(server);
 
@@ -14,7 +14,9 @@ module.exports.prepare = function(server)
      
         socket.on('sending message', (message) => {
            console.log('Message is received :', message);
-           io.sockets.emit('new message', {message: message});
+
+           message = db.insertMessage(message);
+           io.sockets.emit('new message', message);
         });
     });  
      
