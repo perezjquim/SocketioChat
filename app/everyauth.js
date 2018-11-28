@@ -29,7 +29,6 @@ module.exports.prepare = function(db)
                     db.insertUser({ id: fbUserMetadata.id, username: fbUserMetadata.id, name: fbUserMetadata.name });
                 }
             });
-
             return promise;
         })
         .redirectPath('/');    

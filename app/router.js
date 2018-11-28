@@ -4,11 +4,21 @@ module.exports =
     {
       app.get('/', (req, res) => {
           const auth = req.session.auth;
-          var prMessages = [];
+          var prMessages = [];  
           if(auth)
           {
-              const userId = auth.userId || auth.facebook.userId;
-              prMessages = db.getPrivateMessages(userId);
+                const socketId = req.cookies["io"];                      
+                const userId = auth.userId || auth.facebook.userId;
+                if(!app.prConnections[userId])
+                {
+                    app.prConnections[userId] = [];
+                } 
+                app.prConnections[userId].push(socketId);
+                prMessages = db.getPrivateMessages(userId);
+          }
+          else
+          {           
+                res.clearCookie("connect.sid");
           }
           const pubMessages = db.getPublicMessages();
           res.render('home',{ pubMessages: pubMessages, prMessages: prMessages });

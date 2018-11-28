@@ -2,6 +2,9 @@ import express from 'express';
 
 const app = express();
 
+const prConnections = {};
+const pubConnections = [];
+
 module.exports = app;
 module.exports.prepare = function(everyauth)
 {
@@ -12,4 +15,6 @@ module.exports.prepare = function(everyauth)
     app.use(require('body-parser').urlencoded({ extended: true }));
     app.use(require('express-session')({ secret: 'keyboard cat', resave: false, saveUninitialized: false }));
     app.use(everyauth.middleware(app));
+    app.prConnections = prConnections;
+    app.pubConnections = pubConnections;
 };

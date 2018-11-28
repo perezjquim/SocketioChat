@@ -75,7 +75,7 @@ module.exports =
 		}	
 		if(!user.id) user.id = id;
 		return user;
-	},
+	},	
 
 	insertMessage: function(message)
 	{
@@ -92,7 +92,7 @@ module.exports =
 	{
 		const sql =  	"SELECT users.name,text,timestamp "+
 						"FROM messages "+
-						"INNER JOIN users ON messages.user_from=users.id "+
+						"LEFT JOIN users ON messages.user_from=users.id "+
 						"WHERE messages.id='@id@' "+
 						"ORDER BY timestamp DESC";
 		return this.query(sql
@@ -101,11 +101,12 @@ module.exports =
 
 	getPublicMessages: function()
 	{
-		const sql = "SELECT users.name,text,timestamp "+
+		const sql = "SELECT "+
+					"users.name,text,timestamp "+
 					"FROM messages "+
-					"INNER JOIN users ON messages.user_from=users.id "+
-					"WHERE user_to IS NULL OR TRIM(user_to)='' "+
-					"ORDER BY timestamp DESC";
+					"LEFT JOIN users ON messages.user_from=users.id "+
+					"WHERE user_to ='' "+
+					"ORDER BY timestamp DESC";				
 		return this.query(sql);
 	},
 
@@ -113,25 +114,26 @@ module.exports =
 	{
 		const sql = "SELECT * FROM"+
 					"("+
-						"SELECT users.name,text,timestamp "+
+						"SELECT sender.name as sender, receiver.name as receiver, text, timestamp "+
 						"FROM messages "+
-						"INNER JOIN users "+
-						"ON ( messages.user_from = users.id ) "+
-						"WHERE (user_to IS NOT NULL AND TRIM(user_to) != '') "+
-						"AND (user_from = '@userId@') "+
-						"ORDER BY timestamp DESC, user_from ASC, user_to ASC "+
-					")"+
+						"INNER JOIN users as sender "+
+						"ON ( messages.user_from = sender.id ) "+
+						"INNER JOIN users as receiver "+
+						"ON ( messages.user_to = receiver.id ) "+
+						"WHERE user_from = '@userId@' "+
+					") "+
 					"UNION "+
 					"SELECT * FROM "+
 					"("+
-						"SELECT users.name,text,timestamp "+
+						"SELECT sender.name as sender, receiver.name as receiver, text, timestamp "+
 						"FROM messages "+
-						"INNER JOIN users "+
-						"ON ( messages.user_from = users.id ) "+
-						"WHERE (user_to IS NOT NULL AND TRIM(user_to) != '') "+
-						"AND (user_to = '@userId@') "+
-						"ORDER BY timestamp DESC, user_from ASC, user_to ASC "+
-					")";
+						"INNER JOIN users as sender "+
+						"ON ( messages.user_from = sender.id ) "+
+						"INNER JOIN users as receiver "+
+						"ON ( messages.user_to = receiver.id ) "+
+						"WHERE user_to = '@userId@' "+				
+					") "+
+					"ORDER BY timestamp DESC, sender ASC, receiver ASC ";
 
 		return this.query(sql
 			.replace(/@userId@/g,userId));

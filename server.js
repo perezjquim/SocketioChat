@@ -13,7 +13,7 @@ const server = require('http').createServer(app);
 const PORT = 1234;
 
 const io = require("./app/sockets");
-io.prepare(server,db);
+io.prepare(app,server,db);
 
 server.listen(PORT);
 console.log('Server is running');
