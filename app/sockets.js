@@ -99,8 +99,9 @@ module.exports.prepare = function(app,server,db)
 
 function isPublic(socket)
 {
-   var cookie = socket.handshake.headers.cookie; 
-   return cookie.indexOf("connect.sid") === -1;
+   var cookie = socket.handshake.headers.cookie;
+   if(cookie) return cookie.indexOf("connect.sid") === -1;
+   else return false;
 }
 
 function getCookie(socket)
