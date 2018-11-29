@@ -8,14 +8,12 @@ module.exports =
 		return sqlite.run(_sql);
 	},
 
-	getUsers: function()
-	{
-		return this.query("SELECT * FROM 'users'");
-	},
-
 	findUser: function(username,password)
 	{
-		const sql = "SELECT * FROM 'users' WHERE username='@username@' AND password='@password@' LIMIT 1";
+		const sql = "SELECT * FROM 'users' "+
+					"WHERE username='@username@' "+
+					"AND password='@password@' "+
+					"LIMIT 1";
 		var user = this.query(sql
 			.replace("@username@",username)
 			.replace("@password@",password));
@@ -27,7 +25,10 @@ module.exports =
 	{
 		const self = this;
 
-		const sql = "SELECT * FROM 'users' WHERE id='@id@' LIMIT 1";
+		const sql = "SELECT * "+
+					"FROM 'users' "+
+					"WHERE id='@id@' "+
+					"LIMIT 1";
 		var user = self.query(sql
 			.replace("@id@",id || ""));
 		
@@ -46,7 +47,10 @@ module.exports =
 	{
 		const self = this;
 
-		const sql_check = "SELECT id FROM 'users' WHERE username='@username@' LIMIT 1";
+		const sql_check = 	"SELECT id "+
+							"FROM 'users' "+
+							"WHERE username='@username@' "+
+							"LIMIT 1";
 		var id = self.query(sql_check
 			.replace("@username@",user.username || ""));
 
@@ -56,11 +60,17 @@ module.exports =
 		{
 			if(!user.id)
 			{
-				var sql_insert = "INSERT INTO 'users' ('username','password','name') VALUES('@username@','@password@','@name@')";
+				var sql_insert = 	"INSERT INTO 'users' "+
+									"('username','password','name') "+
+									"VALUES "+
+									"('@username@','@password@','@name@')";
 			}
 			else
 			{
-				var sql_insert = "INSERT INTO 'users' ('id','username','password','name') VALUES('@id@','@username@','@password@','@name@')";
+				var sql_insert = 	"INSERT INTO 'users' "+
+									"('id','username','password','name') "+
+									"VALUES "+
+									"('@id@','@username@','@password@','@name@')";
 			}
 			
 			user.id = self.query(sql_insert
@@ -79,7 +89,10 @@ module.exports =
 
 	insertMessage: function(message)
 	{
-		const sql = "INSERT INTO 'messages' ('user_from','user_to','text','timestamp') VALUES ('@user_from@','@user_to@','@text@',CURRENT_TIMESTAMP)";
+		const sql = "INSERT INTO 'messages' "+
+					"('user_from','user_to','text','timestamp') "+
+					"VALUES "+
+					"('@user_from@','@user_to@','@text@',CURRENT_TIMESTAMP)";
 		var id = this.query(sql
 			.replace("@user_from@",message.from || "")
 			.replace("@user_to@",message.to || "")

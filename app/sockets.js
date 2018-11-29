@@ -53,8 +53,11 @@ module.exports.prepare = function(app,server,db)
                var user_from = -1;
                Object.entries(app.prConnections).forEach((userId, userSockets) =>
                {
-                  var index = userSockets.indexOf(socket);
-                  if(index != -1) user_from = userId;
+                  if(userSockets.length > 0)
+                  {
+                     var index = userSockets.indexOf(socket);
+                     if(index != -1) user_from = userId;
+                  }
                });
                var message = db.insertMessage({ user_from: user_from, text: text });               
             }
