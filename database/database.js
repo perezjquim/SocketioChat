@@ -94,8 +94,8 @@ module.exports =
 					"VALUES "+
 					"('@user_from@','@user_to@','@text@',CURRENT_TIMESTAMP)";
 		var id = this.query(sql
-			.replace("@user_from@",message.from || "")
-			.replace("@user_to@",message.to || "")
+			.replace("@user_from@",message.user_from || "")
+			.replace("@user_to@",message.user_to || "")
 			.replace("@text@",message.text || ""));
 
 		return this.getMessage(id);

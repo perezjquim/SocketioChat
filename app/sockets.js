@@ -15,7 +15,6 @@ module.exports.prepare = function(app,server,db)
 
         socket.on('disconnect', () => 
         {
-           console.log(socket.id);
             if(isPublic(socket))
             {
                console.log("@@ public disconnect @@");
@@ -23,43 +22,46 @@ module.exports.prepare = function(app,server,db)
             }   
             else
             {
-               console.log("@@ private disconnect @@");
+               console.log("@@ private disconnect @@");   
                Object.entries(app.prConnections).forEach(([userId, userSockets]) =>
                {
-                  console.log("sockets de "+userId);
-                  console.log(userSockets);
-                  var index = userSockets.indexOf(socket.id);                 
+                  var index = userSockets.indexOf(getCookie(socket));                 
                   if(index != -1) 
                   {
                      app.prConnections[userId].splice(index, 1);
-                  }
-                  console.log("sockets de "+userId);
-                  console.log(app.prConnections[userId]);                  
+                  }            
                });           
             }        
         });
      
-        socket.on('sending message', (text) => 
+        socket.on('sending public message', (text) => 
         {
             if(isPublic(socket))
             {
                console.log("@@ public message @@");
                var message = db.insertMessage({ text: text });     
-               io.sockets.emit('public message', message);                         
+               io.sockets.emit('receiving public message', message);                         
             }   
             else
             {
                console.log("@@ private message @@");
-               var user_from = -1;
-               Object.entries(app.prConnections).forEach((userId, userSockets) =>
+               var user_from = undefined;
+               Object.keys(app.prConnections).forEach(function(key) 
                {
-                  if(userSockets.length > 0)
+                  if(app.prConnections[key].includes(getCookie(socket)))
                   {
-                     var index = userSockets.indexOf(socket);
-                     if(index != -1) user_from = userId;
+                     user_from = key;
                   }
-               });
-               var message = db.insertMessage({ user_from: user_from, text: text });               
+               });            
+               if(user_from)
+               {
+                  var message = db.insertMessage({ user_from: user_from, text: text }); 
+                  io.sockets.emit('receiving public message', message);                           
+               }
+               else
+               {
+                  console.log("!! socket desconhecida !!");
+               }           
             }
         });
     });  
@@ -69,5 +71,12 @@ module.exports.prepare = function(app,server,db)
 
 function isPublic(socket)
 {
-   return socket.handshake.headers.cookie.indexOf("connect.sid") === -1;
+   var cookie = socket.handshake.headers.cookie; 
+   return cookie.indexOf("connect.sid") === -1;
+}
+
+function getCookie(socket)
+{
+   var cookie = socket.handshake.headers.cookie;
+   return cookie.substring(cookie.indexOf("io=")+3,cookie.indexOf(";"))
 }

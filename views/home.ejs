@@ -67,6 +67,14 @@
                            </div>                     
                         <% } %>
                      </div>
+                     <form id="prForm">
+                        <div class="form-group">
+                           <textarea rows="5" id="prTxt" cols="5" class="form-control"></textarea>
+                        </div>
+                        <div class="form-group">
+                           <button type="submit" class="btn btn-success">Send</button>
+                        </div>
+                     </form>                     
                   </div>
                </div>                                   
          <% } %>
@@ -95,9 +103,9 @@
                   </div>                     
                <% } %>
             </div>
-            <form id="myForm">
+            <form id="pubForm">
                <div class="form-group">
-                  <textarea rows="5" id="txt" cols="5" class="form-control"></textarea>
+                  <textarea rows="5" id="pubTxt" cols="5" class="form-control"></textarea>
                </div>
                <div class="form-group">
                   <button type="submit" class="btn btn-success">Send</button>
@@ -111,21 +119,30 @@
    <script>
       jQuery(document).ready(function() {
          const socket = io.connect();
-         const form = jQuery('#myForm');
-         const txt = jQuery('#txt');
+
+         const pubForm = jQuery('#pubForm');
          const pubChat = jQuery('#pubChat');
+         const pubTxt = jQuery('#pubTxt');         
+
+         const prForm = jQuery('#prForm');         
          const prChat = jQuery("#prChat");
+         const prTxt = jQuery('#prTxt');               
 
-         form.submit(function(e) {
+         pubForm.submit(function(e) {
             e.preventDefault();
-            socket.emit('sending message', txt.val());
-            txt.val('');
+            socket.emit('sending public message', pubTxt.val());
+            pubTxt.val('');
          });
+         prForm.submit(function(e) {
+            e.preventDefault();
+            socket.emit('sending private message', prTxt.val());
+            prTxt.val('');
+         });         
 
-         socket.on('public message', function(data){
+         socket.on('receiving public message', function(data){
             pubChat.prepend('<div class="well">'+
                      '<div style="float:left;">'+
-                        "Desconhecido"+
+                        (data.name ? data.name : "Desconhecido") +
                      '</div>'+                     
                      '<div style="display: inline-block; margin:0 auto;">'+
                         data.text+
@@ -138,7 +155,7 @@
                   '</div>');
          });
 
-         socket.on('private message', function(data){
+         socket.on('receiving private message', function(data){
             pubChat.prepend('<div class="well">'+
                      '<p>'+
                         data.sender+
