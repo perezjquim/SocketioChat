@@ -46,7 +46,15 @@
                </h4> <a href="/logout">Logout</a>
 
                <div class="row" style="margin-top: 70px;">
-                  <div class="col-md-4"></div>
+                  <div class="col-md-6">
+                     <select id="comboUser">
+                        <% for(var i = 0, len = users.length; i < len ; i++) { %>
+                           <option value="<%= users[i].username %>">
+                              <%= users[i].name %> ( <%= users[i].username %> )
+                           </option>                  
+                        <% } %>                        
+                      </select>
+                  </div>
                   <div class="col-md-6">
                      <h3>Mensagens pessoais</h3>
                      <div class="chatArea" id="prChat">
@@ -126,23 +134,30 @@
 
          const prForm = jQuery('#prForm');         
          const prChat = jQuery("#prChat");
-         const prTxt = jQuery('#prTxt');               
+         const prTxt = jQuery('#prTxt'); 
+         const comboUser = jQuery('#comboUser');        
 
          pubForm.submit(function(e) {
             e.preventDefault();
-            socket.emit('sending public message', pubTxt.val());
-            pubTxt.val('');
+            if(pubTxt.val())
+            {
+               socket.emit('sending public message', pubTxt.val());
+               pubTxt.val('');
+            }
          });
          prForm.submit(function(e) {
             e.preventDefault();
-            socket.emit('sending private message', prTxt.val());
-            prTxt.val('');
+            if(prTxt.val())
+            {
+               socket.emit('sending private message', prTxt.val(), comboUser.val());
+               prTxt.val('');
+            }
          });         
 
          socket.on('receiving public message', function(data){
             pubChat.prepend('<div class="well">'+
                      '<div style="float:left;">'+
-                        (data.name ? data.name : "Desconhecido") +
+                        (data.sender ? data.sender : "Desconhecido") +
                      '</div>'+                     
                      '<div style="display: inline-block; margin:0 auto;">'+
                         data.text+
@@ -156,7 +171,7 @@
          });
 
          socket.on('receiving private message', function(data){
-            pubChat.prepend('<div class="well">'+
+            prChat.prepend('<div class="well">'+
                      '<p>'+
                         data.sender+
                      '</p>'+                     

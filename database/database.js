@@ -8,17 +8,37 @@ module.exports =
 		return sqlite.run(_sql);
 	},
 
+	getUsers: function(userId)
+	{
+		const sql = "SELECT name,username "+
+					"FROM users "+
+					"WHERE id != '@userId@' "
+					"ORDER BY name ASC";
+		return this.query(sql
+			.replace("@userId@",userId));
+	},
+
 	findUser: function(username,password)
 	{
 		const sql = "SELECT * FROM 'users' "+
 					"WHERE username='@username@' "+
 					"AND password='@password@' "+
 					"LIMIT 1";
-		var user = this.query(sql
+		const user = this.query(sql
 			.replace("@username@",username)
 			.replace("@password@",password));
 
 		if(user.length > 0) return user[0];
+	},
+
+	findUserByUsername: function(username)
+	{
+		const sql = "SELECT id FROM 'users' "+
+					"WHERE username='@username@' "+
+					"LIMIT 1";
+		const user = this.query(sql
+			.replace("@username@",username));
+		if(user.length > 0) return user[0].id;			
 	},
 
 	findUserById: function(id,cb)
@@ -103,11 +123,15 @@ module.exports =
 
 	getMessage: function(id)
 	{
-		const sql =  	"SELECT users.name,text,timestamp "+
+		const sql =  	"SELECT sender.name as sender, receiver.name as receiver, text, timestamp "+
 						"FROM messages "+
-						"LEFT JOIN users ON messages.user_from=users.id "+
-						"WHERE messages.id='@id@' "+
+						"LEFT JOIN users as sender "+
+						"ON ( messages.user_from = sender.id ) "+
+						"LEFT JOIN users as receiver "+
+						"ON ( messages.user_to = receiver.id ) "+
+						"WHERE messages.id = '@id@' "+
 						"ORDER BY timestamp DESC";
+
 		return this.query(sql
 			.replace("@id@",id))[0];
 	},

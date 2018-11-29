@@ -4,7 +4,8 @@ module.exports =
     {
       app.get('/', (req, res) => {
           const auth = req.session.auth;
-          var prMessages = [];  
+          var prMessages = [];
+          var users = [];  
           if(auth)
           {
                 const socketId = req.cookies["io"];                      
@@ -15,13 +16,14 @@ module.exports =
                 } 
                 app.prConnections[userId].push(socketId);
                 prMessages = db.getPrivateMessages(userId);
+                users = db.getUsers(userId);
           }
           else
           {           
                 res.clearCookie("connect.sid");
           }
           const pubMessages = db.getPublicMessages();
-          res.render('home',{ pubMessages: pubMessages, prMessages: prMessages });
+          res.render('home',{ pubMessages: pubMessages, prMessages: prMessages, users: users });
       });
     }
 };

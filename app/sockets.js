@@ -36,15 +36,14 @@ module.exports.prepare = function(app,server,db)
      
         socket.on('sending public message', (text) => 
         {
+            console.log("@@ public message @@");           
             if(isPublic(socket))
             {
-               console.log("@@ public message @@");
                var message = db.insertMessage({ text: text });     
                io.sockets.emit('receiving public message', message);                         
             }   
             else
             {
-               console.log("@@ private message @@");
                var user_from = undefined;
                Object.keys(app.prConnections).forEach(function(key) 
                {
@@ -64,6 +63,35 @@ module.exports.prepare = function(app,server,db)
                }           
             }
         });
+
+        socket.on('sending private message', (text,user_to) => 
+        {
+            if(!isPublic(socket))
+            {
+               console.log("@@ private message @@");
+               var user_from = undefined;
+               user_to = db.findUserByUsername(user_to);
+               Object.keys(app.prConnections).forEach(function(key) 
+               {
+                  if(app.prConnections[key].includes(getCookie(socket)))
+                  {
+                     user_from = key;
+                  }
+               });            
+               console.log("from",user_from);
+               console.log("to",user_to);
+               if(user_from && user_to)
+               {
+                  var message = db.insertMessage({ user_from: user_from, user_to: user_to, text: text }); 
+                  io.sockets.emit('receiving private message', message);                           
+               }
+               else
+               {
+                  console.log("!! socket desconhecida !!");
+               }           
+            }
+        });
+
     });  
      
     module.exports = io;
