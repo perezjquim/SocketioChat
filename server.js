@@ -17,7 +17,7 @@ cRoute.prepare(app,mUser,mMessage);
 
 /* SERVER AND COMMUNICATION */
 const   server = require('http').createServer(app),
-        PORT = 1234,
+        PORT = process.env.PORT || 1234,
         cSocket = require("./app/controller/socket");        
 cSocket.prepare(app,server,mUser,mMessage);
 server.listen(PORT);
