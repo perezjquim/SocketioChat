@@ -21,5 +21,5 @@ const   server = require('http').createServer(app),
         cSocket = require("./app/controller/socket");        
 cSocket.prepare(app,server,mUser,mMessage);
 server.listen(PORT);
-console.log('---------- Server is running ----------');
+console.log('---------- Server is running - port:' + PORT + ' ----------');
 /***************************************/
