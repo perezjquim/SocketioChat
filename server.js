@@ -1,19 +1,25 @@
-const db = require("./database/database");
+/* MODELS */
+const   db = require("./database/database"),
+        mUser = require("./app/model/user"),
+        mMessage = require("./app/model/message");
+mUser.prepare(db);
+mMessage.prepare(db);
+/* ***** */
 
-const everyauth = require('./app/everyauth');
-everyauth.prepare(db);
+/* CONTROLLERS */
+const   cAuth = require('./app/controller/auth'),
+        app = require("./app/app"),
+        cRoute = require("./app/controller/route");
+cAuth.prepare(mUser);
+app.prepare(cAuth);
+cRoute.prepare(app,mUser,mMessage);
+/* *********** */
 
-const app = require("./app/app");
-app.prepare(everyauth);
-
-const router = require("./app/router");
-router.prepare(app,everyauth,db);
-
-const server = require('http').createServer(app);
-const PORT = 1234;
-
-const io = require("./app/sockets");
-io.prepare(app,server,db);
-
+/* SERVER AND COMMUNICATION */
+const   server = require('http').createServer(app),
+        PORT = 1234,
+        cSocket = require("./app/controller/socket");        
+cSocket.prepare(app,server,mUser,mMessage);
 server.listen(PORT);
-console.log('Server is running');
+console.log('---------- Server is running ----------');
+/***************************************/

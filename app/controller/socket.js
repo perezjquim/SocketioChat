@@ -1,4 +1,4 @@
-module.exports.prepare = function(app,server,db)
+module.exports.prepare = function(app,server,mUser,mMessage)
 {   
     var io = require("socket.io").listen(server);
 
@@ -39,7 +39,7 @@ module.exports.prepare = function(app,server,db)
             console.log("@@ public message @@");           
             if(isPublic(socket))
             {
-               var message = db.insertMessage({ text: text });     
+               var message = mMessage.insertMessage({ text: text });     
                io.sockets.emit('receiving public message', message);                         
             }   
             else
@@ -54,7 +54,7 @@ module.exports.prepare = function(app,server,db)
                });            
                if(user_from)
                {
-                  var message = db.insertMessage({ user_from: user_from, text: text }); 
+                  var message = mMessage.insertMessage({ user_from: user_from, text: text }); 
                   io.sockets.emit('receiving public message', message);                           
                }
                else
@@ -70,7 +70,7 @@ module.exports.prepare = function(app,server,db)
             {
                console.log("@@ private message @@");
                var user_from = undefined;
-               user_to = db.findUserByUsername(user_to);
+               user_to = mUser.findUserByUsername(user_to);
                Object.keys(app.prConnections).forEach(function(key) 
                {
                   if(app.prConnections[key].includes(getCookie(socket)))
@@ -82,7 +82,7 @@ module.exports.prepare = function(app,server,db)
                console.log("to",user_to);
                if(user_from && user_to)
                {
-                  var message = db.insertMessage({ user_from: user_from, user_to: user_to, text: text }); 
+                  var message = mMessage.insertMessage({ user_from: user_from, user_to: user_to, text: text }); 
                   io.sockets.emit('receiving private message', message);                           
                }
                else
@@ -95,6 +95,8 @@ module.exports.prepare = function(app,server,db)
     });  
      
     module.exports = io;
+
+    console.log("_ Socket prepared _");    
 };
 
 function isPublic(socket)

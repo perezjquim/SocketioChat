@@ -1,13 +1,13 @@
 const everyauth = require('everyauth');
 
 module.exports = everyauth;
-module.exports.prepare = function(db)
+module.exports.prepare = function(mUser)
 {
     everyauth.everymodule.findUserById(function(userId, callback)
     {
         process.nextTick(function()
         {
-            db.findUserById(userId, function (err, user) {
+            mUser.findUserById(userId, function (err, user) {
                 if (!err) return callback(null,user);
                 else return callback(null,null);
             });            
@@ -18,7 +18,7 @@ module.exports.prepare = function(db)
         .appSecret('a22426ef9885a904b2f25c793af823fd')
         .findOrCreateUser( function (session, accessToken, accessTokExtra, fbUserMetadata) {
             var promise = this.Promise();
-            db.findUserById(fbUserMetadata.id, function(err, user) {
+            mUser.findUserById(fbUserMetadata.id, function(err, user) {
                 if (err) return promise.fulfill([err]);
                 if(user) 
                 {
@@ -26,7 +26,7 @@ module.exports.prepare = function(db)
                 } 
                 else 
                 {
-                    db.insertUser({ id: fbUserMetadata.id, username: fbUserMetadata.id, name: fbUserMetadata.name });
+                    mUser.insertUser({ id: fbUserMetadata.id, username: fbUserMetadata.id, name: fbUserMetadata.name });
                 }
             });
             return promise;
@@ -58,7 +58,7 @@ module.exports.prepare = function(db)
             if (!login) errors.push('Missing login');
             if (!password) errors.push('Missing password');
             if (errors.length) return errors;
-            var user = db.findUser(login,password);
+            var user = mUser.findUser(login,password);
             if (!user) return ['Login failed'];
             if (user.password !== password) return ['Login failed'];
             return user;
@@ -74,13 +74,15 @@ module.exports.prepare = function(db)
             }, 200);
           })
           .validateRegistration( function (newUserAttrs, errors) {          
-            if (db.findUser(newUserAttrs.login,newUserAttrs.password)) errors.push('Login already taken');
+            if (mUser.findUser(newUserAttrs.login,newUserAttrs.password)) errors.push('Login already taken');
             return errors;
           })
           .registerUser( function (newUserAttrs) {
-            return db.insertUser({ name: newUserAttrs.name, username: newUserAttrs.login, password: newUserAttrs.password });
+            return mUser.insertUser({ name: newUserAttrs.name, username: newUserAttrs.login, password: newUserAttrs.password });
           })      
           .loginSuccessRedirect('/')
           .registerSuccessRedirect('/');        
+
+    console.log("_ Auth prepared _");          
         
 };
