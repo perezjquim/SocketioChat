@@ -109,5 +109,6 @@ function isPublic(socket)
 function getCookie(socket)
 {
    var cookie = socket.handshake.headers.cookie;
-   return cookie.substring(cookie.indexOf("io=")+3,cookie.indexOf(";"))
+   if(cookie) return cookie.substring(cookie.indexOf("io=")+3,cookie.indexOf(";"))
+   else return -1;
 }
