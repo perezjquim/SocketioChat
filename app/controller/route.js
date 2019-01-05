@@ -44,17 +44,21 @@ module.exports = {
                                 app.prConnections[userId][sessionID] = null;
                                 prMessages = mMessage.getPrivateMessages(userId);
                                 users = mUser.getUsers(userId);
+                                res.render('privateChat',
+                                {
+                                        prMessages: prMessages,
+                                        users: users
+                                });
                         }
                         else
                         {
                                 res.clearCookie("connect.sid");
+                                const pubMessages = mMessage.getPublicMessages();
+                                res.render('publicChat',
+                                {
+                                        pubMessages: pubMessages
+                                });
                         }
-                        const pubMessages = mMessage.getPublicMessages();
-                        res.render('privateChat',
-                        {
-                                prMessages: prMessages,
-                                users: users
-                        });
                 });
                 console.log("_ Routes prepared _");
         }

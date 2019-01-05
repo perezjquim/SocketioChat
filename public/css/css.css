@@ -1,13 +1,19 @@
-.chatArea
-{
-      height: 25vh !important;
-      overflow: scroll !important;
+#privateChat, #publicChat {
+        margin-top: 5vh;
+        height: 80vh;
+        width: 100%;
+        display: flex;
+        justify-content: center;
 }
-.well
-{
-   text-align: center !important;
+.chatArea {
+        overflow: scroll;
+        height: 50%;
 }
-.well div
-   {
-      width: 100px !important;
+form {
+        height: 30%;
+}
+.well {
+        text-align: center;
+        display: flex;
+        justify-content: space-between;
 }
