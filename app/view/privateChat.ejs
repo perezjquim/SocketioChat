@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title> Chat privado</title>
+        <% include ../view/partials/head %>
+    </head>
+    <header>
+        <% include ../view/partials/navBar %>
+    </header>
+    <body> 
+    <div class="container">             
+        <div class="row" id="privateChat" style="margin-top: 70px;">
+            <div class="col-md-6">
+                <select class="form-control" id="comboUser" @change="filtarMeng()">
+                    <option value="-1">
+                        Escolha o utilizador
+                    </option>
+                    <option v-bind:value="user.username" v-for="user in users">
+                        {{ user.name }} ({{ user.username }})
+                    </option>
+                </select>
+            </div>
+            <div class="col-md-6" v-if="selected">
+                <h3>
+                    Mensagens pessoais
+                </h3>
+                <div class="chatArea" id="prChat">
+                    <div class="well" v-for="prMessage in prMessages">
+                        <div style="float:left;">
+                            {{ prMessage.sender }}
+                        </div>
+                        <div style="display: inline-block; margin:0 auto;">
+                            {{ prMessage.text }}
+                        </div>
+                        <div style="float:right;">
+                            <i>
+                                {{ prMessage.timestamp }}
+                            </i>
+                        </div>
+                    </div>
+                </div>
+                <form id="prForm">
+                    <div class="form-group">
+                        <textarea class="form-control" cols="5" id="prTxt" rows="5"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-success" type="submit">
+                            Enviar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+        <script>
+            addVuePrChat(<%- JSON.stringify(users) %>,<%- JSON.stringify(prMessages) %>,"<%= user.username %>");    
+        </script>
+    </body>
+</html>

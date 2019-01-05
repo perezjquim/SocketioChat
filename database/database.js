@@ -12,13 +12,14 @@ module.exports =
 sqlite.connect("./database/database.db");
 module.exports.query(
 	"PRAGMA foreign_keys = ON; "+
+	//"DELETE FROM messages; "+
 	"CREATE TABLE IF NOT EXISTS 'users' "+
 	"("+
 	"'id' INTEGER NOT NULL PRIMARY KEY UNIQUE,"+ 
 	"'username' VARCHAR(45) UNIQUE,"+
 	"'password' VARCHAR(45),"+
 	"'name' VARCHAR(45)"+
-	");"+
+	"); "+
 	"CREATE TABLE IF NOT EXISTS 'messages' "+
 	"("+
 	"'id' INTEGER NOT NULL PRIMARY KEY UNIQUE,"+

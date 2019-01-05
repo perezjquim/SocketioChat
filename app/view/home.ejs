@@ -1,42 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
         <head>
-                <meta charset="utf-8">
-                        <meta content="width=device-width, initial-scale=1.0" name="viewport">
-                                <meta content="ie=edge" http-equiv="X-UA-Compatible">
-                                        <title>
-                                                Node.js Socket.io Chat Application
-                                        </title>
-                                        <link href="/vendor/bootstrap.min.css" rel="stylesheet">
-                                                <script src="/vendor/jquery.min.js">
-                                                </script>
-                                                <script src="/vendor/socket.io.js">
-                                                </script>
-                                                <script src="/vendor/vue.min.js">
-                                                </script>
-                                                <script src="/js/home.js">
-                                                </script>
-                                        </link>
-                                </meta>
-                        </meta>
-                </meta>
+               <% include ../view/partials/head %>
         </head>
+        <header>
+                <% include ../view/partials/navBar %>
+        </header>
    <body>
-      <style>
-      .chatArea
-      {
-         height: 25vh;
-         overflow: scroll;
-      }
-      .well
-      {
-         text-align: center;
-      }
-      .well div
-      {
-         width: 100px;
-      }
-      </style>
+      
                 <div class="container">
                         <h1 class="jumbotron">
                                 Node js Socket io Chat Application
@@ -71,43 +42,36 @@
                                 <a href="/logout">
                                         Logout
                                 </a>
-                                <div class="row" style="margin-top: 70px;">
+                                <div class="row" id="privateChat" style="margin-top: 70px;">
                                         <div class="col-md-6">
-                                                <select id="comboUser">
+                                                <select id="comboUser" @change="filtarMeng()">
+                                                        <option value="-1">
+                                                                Escolha o utilizador
+                                                        </option>
                                                         <option v-bind:value="user.username" v-for="user in users">
                                                                 {{ user.name }} ({{ user.username }})
                                                         </option>
                                                 </select>
-                                                <script>
-                                                   new Vue({
-							                                 el: '#comboUser',
-							                                 data: {
-							                                    users: <%- JSON.stringify(users) %>
-							                                 }
-							                           })
-                                                </script>
                                         </div>
                                         <div class="col-md-6">
                                                 <h3>
                                                         Mensagens pessoais
                                                 </h3>
                                                 <div class="chatArea" id="prChat">
-                                                        <% for(var i = 0, len = prMessages.length; i < len ; i++) { %>
-                                                        <div class="well">
-                                                                <p>
-                                                                        <%= prMessages[i].sender %>
-                                                                </p>
-                                                                <p>
-                                                                        <%= prMessages[i].text %>
-                                                                </p>
-                                                                <p>
-                                                                        <%= prMessages[i].receiver %>
-                                                                </p>
-                                                                <p>
-                                                                        <%= prMessages[i].timestamp %>
-                                                                </p>
+                                                        <div class="well" v-for="prMessage in prMessages">
+                                                                <div style="float:left;">
+                                                                        {{ prMessage.sender }}
+                                                                </div>
+                                                                <div style="display: inline-block; margin:0 auto;">
+                                                                        {{ prMessage.text }}
+                                                                </div>
+                                        
+                                                                <div style="float:right;">
+                                                                        <i>
+                                                                                {{ prMessage.timestamp }}
+                                                                        </i>
+                                                                </div>
                                                         </div>
-                                                        <% } %>
                                                 </div>
                                                 <form id="prForm">
                                                         <div class="form-group">
@@ -122,9 +86,12 @@
                                                 </form>
                                         </div>
                                 </div>
+                                <script>
+                                addVuePrChat(<%- JSON.stringify(users) %>,<%- JSON.stringify(prMessages) %>,"<%= user.username %>");    
+                                </script>
                                 <% } %>
                         </h1>
-                        <div class="row" style="margin-top: 70px;">
+                        <div class="row" id="publicChat" style="margin-top: 70px;">
                                 <div class="col-md-4">
                                 </div>
                                 <div class="col-md-6">
@@ -132,25 +99,24 @@
                                                 Chat público
                                         </h3>
                                         <div class="chatArea" id="pubChat">
-                                                <% for(var i = 0, len = pubMessages.length; i < len ; i++) { %>
-                                                <div class="well">
-                                                        <div style="float:left;">
-                                                                <% if(pubMessages[i].name) { %>
-                           <%= pubMessages[i].name %>
-                        <% } else { %>
-                           Desconhecido
-                        <% } %>
+                                                
+                                                <div class="well" v-for="pubMessage in pubMessages">
+                                                        <div style="float:left;" v-if="pubMessage.name">
+                                                                {{ pubMessage.name}}
+                                                        </div>
+                                                        <div style="float:left;" v-else>
+                                                                Desconhecido
                                                         </div>
                                                         <div style="display: inline-block; margin:0 auto;">
-                                                                <%= pubMessages[i].text %>
+                                                                {{ pubMessage.text }}
                                                         </div>
                                                         <div style="float:right;">
                                                                 <i>
-                                                                        <%= pubMessages[i].timestamp %>
+                                                                        {{ pubMessage.timestamp }}
                                                                 </i>
                                                         </div>
                                                 </div>
-                                                <% } %>
+                                              
                                         </div>
                                         <form id="pubForm">
                                                 <div class="form-group">
@@ -165,6 +131,9 @@
                                         </form>
                                 </div>
                         </div>
+                        <script>
+                                addVuePubChat(<%- JSON.stringify(pubMessages) %>);
+                        </script>
                 </div>
         </body>
 </html>

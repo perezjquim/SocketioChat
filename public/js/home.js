@@ -1,3 +1,5 @@
+var vuePrChat,vuePubChat;
+var m;
 jQuery(document).ready(function() {
     const socket = io.connect();
 
@@ -8,7 +10,7 @@ jQuery(document).ready(function() {
     const prForm = jQuery('#prForm');         
     const prChat = jQuery("#prChat");
     const prTxt = jQuery('#prTxt'); 
-    const comboUser = jQuery('#comboUser');        
+    const comboUser = jQuery('#comboUser');  
 
     pubForm.submit(function(e) {
        e.preventDefault();
@@ -28,35 +30,59 @@ jQuery(document).ready(function() {
     });         
 
     socket.on('receiving public message', function(data){
-       pubChat.prepend('<div class="well">'+
-                '<div style="float:left;">'+
-                   (data.sender ? data.sender : "Desconhecido") +
-                '</div>'+                     
-                '<div style="display: inline-block; margin:0 auto;">'+
-                   data.text+
-                '</div>'+
-                '<div style="float:right;">'+
-                   '<i>'+
-                      data.timestamp +
-                   '</i>'+
-                '</div>'+
-             '</div>');
+             vuePubChat.pubMessages.push(data);
+             vuePubChat.$nextTick(() => {
+               pubChat.scrollTop(pubChat.prop("scrollHeight"));
+            })
     });
 
     socket.on('receiving private message', function(data){
-       prChat.prepend('<div class="well">'+
-                '<p>'+
-                   data.sender+
-                '</p>'+                     
-                '<p>'+
-                   data.text+
-                '</p>'+     
-                '<p>'+
-                   data.receiver+
-                '</p>'+ 
-                '<p>'+
-                   data.timestamp+
-                '</p>'+                              
-             '</div>');
-    });         
+      m.push(data);
+      if(data.senderUsername == comboUser.val() || data.receiverUsername == comboUser.val()){
+         vuePrChat.prMessages.push(data);
+         vuePrChat.$nextTick(() => {
+            prChat.scrollTop(prChat.prop("scrollHeight"));
+         }) 
+      }         
+    }); 
  });
+
+ function addVuePrChat(users,msg1,userLogged){
+    m = msg1 ;
+    vuePrChat=new Vue({
+      el: '#privateChat',
+      data: {
+         selected:false,
+         users: users,
+         prMessages: []
+      },
+      methods:{
+         filtarMeng:function(){
+            var comboUsername=$("#comboUser").val();
+               if(comboUsername == -1){
+                  this.selected=false;
+                  return this.prMessages=[];
+               }
+               this.selected=true;
+               var loggedUsername=userLogged;
+               this.prMessages=m.filter(function(msg){
+                     return msg.senderUsername == comboUsername 
+                           || msg.receiverUsername == comboUsername;
+               });
+               this.$nextTick(() => {
+                  $("#prChat").scrollTop($("#prChat").prop("scrollHeight"));
+               })                              
+         }
+   }
+});
+ }
+
+ function addVuePubChat(pubMessages){
+   vuePubChat=new Vue({
+      el: '#publicChat',
+      data: {
+         pubMessages: pubMessages
+      }
+   });
+   $("#pubChat").scrollTop($("#pubChat").prop("scrollHeight"));
+ }
