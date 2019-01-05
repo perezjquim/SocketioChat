@@ -21,7 +21,7 @@ module.exports =
 
 	getMessage: function(id)
 	{
-		const sql =  	"SELECT sender.name as sender, receiver.name as receiver, text, timestamp "+
+		const sql =  	"SELECT sender.username as senderUsername, receiver.username as receiverUsername, sender.name as sender, receiver.name as receiver, text, timestamp "+
 						"FROM messages "+
 						"LEFT JOIN users as sender "+
 						"ON ( messages.user_from = sender.id ) "+
@@ -37,11 +37,11 @@ module.exports =
 	getPublicMessages: function()
 	{
 		const sql = "SELECT "+
-					"users.name,text,timestamp "+
+					"users.name as sender,text,timestamp "+
 					"FROM messages "+
 					"LEFT JOIN users ON messages.user_from=users.id "+
 					"WHERE user_to ='' "+
-					"ORDER BY timestamp DESC";				
+					"ORDER BY timestamp ASC";				
 		return this.db.query(sql);
 	},
 
@@ -49,7 +49,7 @@ module.exports =
 	{
 		const sql = "SELECT * FROM"+
 					"("+
-						"SELECT sender.name as sender, receiver.name as receiver, text, timestamp "+
+						"SELECT sender.name as sender, receiver.name as receiver, text, timestamp, receiver.username as receiverUsername, sender.username as senderUsername "+
 						"FROM messages "+
 						"INNER JOIN users as sender "+
 						"ON ( messages.user_from = sender.id ) "+
@@ -60,7 +60,7 @@ module.exports =
 					"UNION "+
 					"SELECT * FROM "+
 					"("+
-						"SELECT sender.name as sender, receiver.name as receiver, text, timestamp "+
+						"SELECT sender.name as sender, receiver.name as receiver, text, timestamp, sender.username as senderUsername, receiver.username as receiverUsername "+
 						"FROM messages "+
 						"INNER JOIN users as sender "+
 						"ON ( messages.user_from = sender.id ) "+
@@ -68,7 +68,7 @@ module.exports =
 						"ON ( messages.user_to = receiver.id ) "+
 						"WHERE user_to = '@userId@' "+				
 					") "+
-					"ORDER BY timestamp DESC, sender ASC, receiver ASC ";
+					"ORDER BY timestamp ASC, sender ASC, receiver ASC ";
 
 		return this.db.query(sql
 			.replace(/@userId@/g,userId));

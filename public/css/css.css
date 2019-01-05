@@ -1,0 +1,13 @@
+.chatArea
+{
+      height: 25vh !important;
+      overflow: scroll !important;
+}
+.well
+{
+   text-align: center !important;
+}
+.well div
+   {
+      width: 100px !important;
+}
